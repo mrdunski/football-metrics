@@ -3,6 +3,7 @@ package randomizer
 import (
 	"football-metrics/football"
 	"github.com/Pallinder/go-randomdata"
+	"math"
 	"math/rand"
 )
 
@@ -25,7 +26,7 @@ func randomPlayer() football.Player {
 
 	return football.Player{
 		Name:    name,
-		BadLuck: rand.Float64() * 0.01,
-		Offence: rand.Float64() * 0.1,
+		BadLuck: math.Abs(rand.NormFloat64()) * 0.02,
+		Offence: math.Abs(rand.NormFloat64()) * 0.2,
 	}
 }

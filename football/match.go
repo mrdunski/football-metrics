@@ -3,6 +3,7 @@ package football
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -36,6 +37,12 @@ var (
 		Name:    "football_player_goal_minutes",
 		Help:    "player goals by match minute",
 		Buckets: []float64{5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85},
+	}, []string{"team", "player"})
+
+	shootSpeed = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "football_player_shoot_speed",
+		Help:    "player shoot speed in km/h",
+		Buckets: []float64{1, 2, 3, 5, 10, 20, 30, 50, 70, 100, 130, 170, 210, 260, 310, 500, 1000},
 	}, []string{"team", "player"})
 
 	shootsSummaryByTeam = promauto.NewSummaryVec(prometheus.SummaryOpts{
@@ -120,6 +127,8 @@ func (m match) randomizeTeamEvents(team *Team, opponent *Team) {
 		if randomBool(player.Offence) {
 			shoots.WithLabelValues(m.startTimeString(), team.Name, player.Name).Inc()
 			shootsSummaryByTeam.WithLabelValues(team.Name).Observe(time.Now().Sub(m.StartTime).Seconds())
+			speed := math.Abs(r.NormFloat64()) * 500 * player.Offence
+			shootSpeed.WithLabelValues(team.Name, player.Name).Observe(speed)
 			if !randomBool(opponent.Defence) {
 				goals.WithLabelValues(m.startTimeString(), team.Name, player.Name).Inc()
 				goalsByPlayer.WithLabelValues(team.Name, player.Name).Observe(time.Now().Sub(m.StartTime).Minutes())
@@ -198,6 +207,7 @@ func (m match) initTeamGoals(t *Team) {
 		goals.WithLabelValues(m.startTimeString(), t.Name, player.Name).Add(0)
 		shoots.WithLabelValues(m.startTimeString(), t.Name, player.Name).Add(0)
 		goalsByPlayer.WithLabelValues(t.Name, player.Name)
+		shootSpeed.WithLabelValues(t.Name, player.Name)
 		shootsSummaryByTeam.WithLabelValues(t.Name)
 	}
 }
