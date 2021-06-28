@@ -197,6 +197,8 @@ func (m match) initTeamGoals(t *Team) {
 	for _, player := range t.Players {
 		goals.WithLabelValues(m.startTimeString(), t.Name, player.Name).Add(0)
 		shoots.WithLabelValues(m.startTimeString(), t.Name, player.Name).Add(0)
+		goalsByPlayer.WithLabelValues(t.Name, player.Name)
+		shootsSummaryByTeam.WithLabelValues(t.Name)
 	}
 }
 
