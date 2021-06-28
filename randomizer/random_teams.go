@@ -7,13 +7,13 @@ var poland = football.Team{
 	Players: []football.Player{
 		{
 			Name:    "Robert Lewandowski",
-			Offence: 0.05,
+			Offence: 0.25,
 			BadLuck: 0,
 		},
 		{
 			Name:    "Wojciech Szczęsny",
 			Offence: 0,
-			BadLuck: 0.03,
+			BadLuck: 0.05,
 		},
 		{
 			Name:    "Jakub Błaszczykowski",
