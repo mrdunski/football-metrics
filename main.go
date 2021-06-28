@@ -112,6 +112,7 @@ func runTournament() {
 	for true {
 		time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
 		randomMatcher(teams)
+		time.Sleep(time.Duration(rand.Intn(90)) * time.Minute)
 	}
 }
 
@@ -119,6 +120,8 @@ func main() {
 	address := getListeningAddress()
 	fmt.Printf("Listening on %s\n", address)
 
+	go runTournament()
+	go runTournament()
 	go runTournament()
 	go runTournament()
 

@@ -24,27 +24,38 @@ var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 var (
 	goals = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "football_match_goals",
-		Help: "Goals scored by Players",
+		Help: "goals scored by Players",
 	}, []string{"matchStartTime", "team", "player"})
 
 	shoots = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "football_match_shoots",
-		Help: "Shoots by Players",
+		Help: "shoots by Players",
 	}, []string{"matchStartTime", "team", "player"})
+
+	goalsByPlayer = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "football_player_goals",
+		Help:    "player goals by match minute",
+		Buckets: []float64{5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85},
+	}, []string{"team", "player"})
+
+	shootsSummaryByTeam = promauto.NewSummaryVec(prometheus.SummaryOpts{
+		Name: "football_team_shoots_seconds",
+		Help: "minute in which team scored a goal",
+	}, []string{"team"})
 
 	secondsFromStart = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "football_match_seconds",
-		Help: "Seconds since the first whistle",
+		Help: "seconds since the first whistle",
 	}, []string{"matchStartTime", "hosts", "guests"})
 
 	currentHalf = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "football_match_current_half",
-		Help: "Current half or 0 if match is finished",
+		Help: "current half or 0 if match is finished",
 	}, []string{"matchStartTime", "hosts", "guests"})
 
 	currentStatus = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "football_match_current_status",
-		Help: "Current status of the match",
+		Help: "current status of the match",
 	}, []string{"matchStartTime", "hosts", "guests", "status"})
 )
 
@@ -108,8 +119,10 @@ func (m match) randomizeTeamEvents(team *Team, opponent *Team) {
 	for _, player := range team.Players {
 		if randomBool(player.Offence) {
 			shoots.WithLabelValues(m.startTimeString(), team.Name, player.Name).Inc()
+			shootsSummaryByTeam.WithLabelValues(team.Name).Observe(time.Now().Sub(m.StartTime).Seconds())
 			if !randomBool(opponent.Defence) {
 				goals.WithLabelValues(m.startTimeString(), team.Name, player.Name).Inc()
+				goalsByPlayer.WithLabelValues(team.Name, player.Name).Observe(time.Now().Sub(m.StartTime).Minutes())
 			}
 		}
 
