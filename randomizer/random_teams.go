@@ -76,7 +76,7 @@ var otherTeams = []string{
 	"Czechy",
 	"Litwa",
 	"Dania",
-	"Białoruś",
+	"Słowacja",
 	"Chorwacja",
 }
 
