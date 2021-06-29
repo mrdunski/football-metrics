@@ -26,7 +26,7 @@ func randomPlayer() football.Player {
 
 	return football.Player{
 		Name:    name,
-		BadLuck: math.Abs(rand.NormFloat64()) * 0.02,
-		Offence: math.Abs(rand.NormFloat64()) * 0.2,
+		BadLuck: math.Abs(rand.NormFloat64()) * 0.01,
+		Offence: rand.Float64() * 0.5,
 	}
 }
