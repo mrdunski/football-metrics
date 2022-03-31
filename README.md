@@ -1,6 +1,6 @@
 # football-metrics
 
-
+Go Prometheus metrics example
 
 ## Test it
 
